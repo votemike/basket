@@ -59,4 +59,66 @@ class BasketTest extends PHPUnit_Framework_TestCase {
 		$this->expectExceptionMessage('Item is already in basket. Use updateQuantity() instead.');
 		$basket->addItem($item);
 	}
+
+	public function testCurrencyOfBasketCanBeChanged()
+	{
+		$itemA = Mockery::mock(Item::class);
+		$itemA->shouldReceive('getGross')->with('USD')->once()->andReturn(new Money(1, 'USD'));
+		$itemA->shouldReceive('getGross')->with('GBP')->once()->andReturn(new Money(1.5, 'GBP'));
+		$itemA->shouldReceive('getUniqueIdentifier')->once()->andReturn(uniqid());
+
+		$itemB = Mockery::mock(Item::class);
+		$itemB->shouldReceive('getGross')->with('USD')->once()->andReturn(new Money(2, 'USD'));
+		$itemB->shouldReceive('getGross')->with('GBP')->once()->andReturn(new Money(3, 'GBP'));
+		$itemB->shouldReceive('getUniqueIdentifier')->once()->andReturn(uniqid());
+
+		$basket = new Basket('USD');
+		$basket->addItem($itemA);
+		$basket->addItem($itemB);
+		$basket->setCurrencyCode('GBP');
+	}
+
+	public function testChangingBasketCurrencyWhenNotAllItemsSupportThatCurrencyThrowsException()
+	{
+		$itemA = Mockery::mock(Item::class);
+		$itemA->shouldReceive('getGross')->with('USD')->once()->andReturn(new Money(1, 'USD'));
+		$itemA->shouldReceive('getGross')->with('GBP')->once()->andReturn(new Money(1.5, 'GBP'));
+		$itemA->shouldReceive('getUniqueIdentifier')->once()->andReturn(uniqid());
+
+		$itemB = Mockery::mock(Item::class);
+		$itemB->shouldReceive('getGross')->with('USD')->once()->andReturn(new Money(2, 'USD'));
+		$itemB->shouldReceive('getGross')->with('GBP')->once()->andReturnNull();
+		$itemB->shouldReceive('getUniqueIdentifier')->once()->andReturn(uniqid());
+		$itemB->shouldReceive('getName')->once()->andReturn('No GBP');
+
+		$basket = new Basket('USD');
+		$basket->addItem($itemA);
+		$basket->addItem($itemB);
+		$this->expectException(Exception::class);
+		$this->expectExceptionMessage('Item No GBP does not have a GBP price');
+		$basket->setCurrencyCode('GBP');
+	}
+
+	public function testGetGross()
+	{
+		$itemA = Mockery::mock(Item::class);
+		$itemA->shouldReceive('getGross')->with('USD')->once()->andReturn(new Money(10, 'USD'));
+		$itemA->shouldReceive('getUniqueIdentifier')->once()->andReturn(uniqid());
+
+		$itemB = Mockery::mock(Item::class);
+		$itemB->shouldReceive('getGross')->with('USD')->once()->andReturn(new Money(8, 'USD'));
+		$itemB->shouldReceive('getUniqueIdentifier')->once()->andReturn(uniqid());
+
+		$basket = new Basket('USD');
+		$basket->addItem($itemA, 2);
+		$basket->addItem($itemB);
+		$this->assertEquals(28.00, $basket->getGross()->getAmount());
+	}
+
+	//getGrossIsRoundedProperly
+	//getGrossIsRoundedProperlyWithWholeCheckoutCoupon
+	//getNet
+	//getTax
+	//update Item
+	//update Quantity
 }

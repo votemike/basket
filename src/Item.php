@@ -19,15 +19,20 @@ use Votemike\Money\Money;
 interface Item {
 
 	/**
+	 * @param $currencyCode
+	 * @return Money
+	 */
+	public function getGross($currencyCode);
+
+	/**
 	 * @return string
 	 */
 	public function getName();
 
 	/**
-	 * @param $currencyCode
-	 * @return Money
+	 * @return mixed
 	 */
-	public function getGross($currencyCode);
+	public function getUniqueIdentifier();
 
 	/**
 	 * Integer between 0 and 100
@@ -35,9 +40,4 @@ interface Item {
 	 * @return int
 	 */
 	public function getVatRate();
-
-	/**
-	 * @return mixed
-	 */
-	public function getUniqueIdentifier();
 }

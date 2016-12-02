@@ -37,67 +37,6 @@ class Basket {
 	}
 
 	/**
-	 * @param string $currencyCode
-	 * @throws Exception
-	 */
-	public function setCurrencyCode($currencyCode)
-	{
-		foreach ($this->rows as $row)
-		{
-			$item = $row->getItem();
-			if (empty($item->getGross($currencyCode)))
-			{
-				throw new Exception('Item ' . $item->getName() . ' does not have a ' . $currencyCode . 'price');
-			}
-		}
-		$this->currencyCode = $currencyCode;
-	}
-
-	/**
-	 * @return Money
-	 */
-	public function getGross()
-	{
-		$gross = new Money(0, $this->currencyCode);
-
-		foreach ($this->rows as $row)
-		{
-			$gross->add($row->getItem()->getGross($this->currencyCode)->multiply($row->getQuantity()));
-		}
-
-		//@TODO coupons or coupons in the foreach?
-
-		return $gross;
-	}
-
-	/**
-	 * @return Money
-	 */
-	public function getTax()
-	{
-		$tax = new Money(0, $this->currencyCode);
-
-		foreach ($this->rows as $row)
-		{
-			$item = $row->getItem();
-			$rowGross = $item->getGross($this->currencyCode)->multiply($row->getQuantity());
-			$tax->add($rowGross->percentage($item->getVatRate()));
-		}
-
-		//@TODO coupons or coupons in the foreach?
-
-		return $tax;
-	}
-
-	/**
-	 * @return Money
-	 */
-	public function getNet()
-	{
-		return $this->getGross()->sub($this->getTax());
-	}
-
-	/**
 	 * @param Item $item
 	 * @param int $quantity
 	 * @throws Exception
@@ -120,6 +59,71 @@ class Basket {
 		}
 
 		$this->rows[$uid] = new Row($item, $quantity);
+	}
+
+	/**
+	 * @return Money
+	 */
+	public function getGross()
+	{
+		$gross = new Money(0, $this->currencyCode);
+
+		foreach ($this->rows as $row)
+		{
+			$gross = $gross->add($row->getItem()->getGross($this->currencyCode)->multiply($row->getQuantity()));
+		}
+		//@TODO coupons or coupons in the foreach?
+
+		return $gross;
+	}
+
+	/**
+	 * @return Money
+	 */
+	public function getNet()
+	{
+		return $this->getGross()->sub($this->getTax());
+	}
+
+	public function getRows()
+	{
+		return $this->rows;
+	}
+
+	/**
+	 * @return Money
+	 */
+	public function getTax()
+	{
+		$tax = new Money(0, $this->currencyCode);
+
+		foreach ($this->rows as $row)
+		{
+			$item = $row->getItem();
+			$rowGross = $item->getGross($this->currencyCode)->multiply($row->getQuantity());
+			$tax = $tax->add($rowGross->percentage($item->getVatRate()));
+		}
+
+		//@TODO coupons or coupons in the foreach?
+
+		return $tax;
+	}
+
+	/**
+	 * @param string $currencyCode
+	 * @throws Exception
+	 */
+	public function setCurrencyCode($currencyCode)
+	{
+		foreach ($this->rows as $row)
+		{
+			$item = $row->getItem();
+			if (empty($item->getGross($currencyCode)))
+			{
+				throw new Exception('Item ' . $item->getName() . ' does not have a ' . $currencyCode . ' price');
+			}
+		}
+		$this->currencyCode = $currencyCode;
 	}
 
 	/**
@@ -152,10 +156,5 @@ class Basket {
 			$currentRow = $this->rows[$itemIdentifier];
 			$this->rows[$itemIdentifier] = new Row($currentRow->getItem(), $quantity);
 		}
-	}
-
-	public function getRows()
-	{
-		return $this->rows;
 	}
 }
