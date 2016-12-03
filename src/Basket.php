@@ -8,6 +8,7 @@ use Votemike\Money\Money;
  * Gross is found for all products/coupons.
  * Tax is then calculated
  * Net is Gross minus Tax
+ * Only one overall coupon for a basket
  *
  * @TODO Recurring items
  * @TODO basket wide coupons
@@ -17,6 +18,11 @@ use Votemike\Money\Money;
  * @TODO getItems, getRows
  */
 class Basket {
+
+	/**
+	 * @var Coupon
+	 */
+	private $coupon;
 
 	/**
 	 * @var string
@@ -34,6 +40,11 @@ class Basket {
 	public function __construct($currencyCode)
 	{
 		$this->currencyCode = $currencyCode;
+	}
+
+	public function addCoupon(Coupon $coupon)
+	{
+		$this->coupon = $coupon;
 	}
 
 	/**
@@ -63,6 +74,7 @@ class Basket {
 
 	/**
 	 * @return Money
+	 * @TODO Maybe pass a bool through to apply discounts of not?
 	 */
 	public function getGross()
 	{
@@ -72,9 +84,13 @@ class Basket {
 		{
 			$gross = $gross->add($row->getItem()->getGross($this->currencyCode)->multiply($row->getQuantity()));
 		}
-		//@TODO coupons or coupons in the foreach?
 
-		return $gross;
+		if (is_null($this->coupon))
+		{
+			return $gross;
+		}
+
+		return $this->coupon->applyTo($gross); //Might need a method to grab the
 	}
 
 	/**

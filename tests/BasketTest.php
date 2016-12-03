@@ -115,6 +115,7 @@ class BasketTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals(28.00, $basket->getGross()->getAmount());
 	}
 
+	//getGrossIfItemsSumToZeroAndThereIsACoupon
 	//getGrossIsRoundedProperly
 	//getGrossIsRoundedProperlyWithWholeCheckoutCoupon
 	//getNet

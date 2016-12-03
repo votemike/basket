@@ -35,7 +35,7 @@ interface Item {
 	public function getUniqueIdentifier();
 
 	/**
-	 * Integer between 0 and 100
+	 * Float between 0 and 100
 	 *
 	 * @return int
 	 */
