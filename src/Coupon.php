@@ -8,5 +8,5 @@ interface Coupon {
 	 * @param Money $gross
 	 * @return Money
 	 */
-	public function applyTo(Money $gross);
+	public function getDiscount(Money $gross);
 }

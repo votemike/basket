@@ -25,8 +25,8 @@ class PercentageCoupon implements Coupon {
 		$this->percentage = $percentage;
 	}
 
-	public function applyTo(Money $gross)
+	public function getDiscount(Money $gross)
 	{
-		return $gross->percentage(100 - $this->percentage);
+		return $gross->percentage($this->percentage)->round();
 	}
 }

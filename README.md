@@ -1,5 +1,9 @@
 # basket
 
+Not responsible for the correctness of the calculations. Calculations are based in Googling of UK accounting.
+
+http://money.stackexchange.com/questions/73310/tax-for-basket-with-coupon-containing-two-different-vat-rates
+
 Possible coupons types  
 X off whole basket  
 X% off whole basket  

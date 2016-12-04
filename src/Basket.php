@@ -73,10 +73,10 @@ class Basket {
 	}
 
 	/**
+	 * @param bool $withDiscounts
 	 * @return Money
-	 * @TODO Maybe pass a bool through to apply discounts of not?
 	 */
-	public function getGross()
+	public function getGross($withDiscounts = true)
 	{
 		$gross = new Money(0, $this->currencyCode);
 
@@ -85,20 +85,21 @@ class Basket {
 			$gross = $gross->add($row->getItem()->getGross($this->currencyCode)->multiply($row->getQuantity()));
 		}
 
-		if (is_null($this->coupon))
+		if (false == $withDiscounts || is_null($this->coupon))
 		{
-			return $gross;
+			return $gross->round();
 		}
 
-		return $this->coupon->applyTo($gross); //Might need a method to grab the
+		return $gross->round()->sub($this->getBasketDiscount());
 	}
 
 	/**
+	 * @param bool $withDiscounts
 	 * @return Money
 	 */
-	public function getNet()
+	public function getNet($withDiscounts = true)
 	{
-		return $this->getGross()->sub($this->getTax());
+		return $this->getGross($withDiscounts)->sub($this->getTax($withDiscounts));
 	}
 
 	public function getRows()
@@ -107,9 +108,10 @@ class Basket {
 	}
 
 	/**
+	 * @param bool $withDiscounts
 	 * @return Money
 	 */
-	public function getTax()
+	public function getTax($withDiscounts = true)
 	{
 		$tax = new Money(0, $this->currencyCode);
 
@@ -120,9 +122,12 @@ class Basket {
 			$tax = $tax->add($rowGross->percentage($item->getVatRate()));
 		}
 
-		//@TODO coupons or coupons in the foreach?
+		if (false == $withDiscounts || is_null($this->coupon))
+		{
+			return $tax->round();
+		}
 
-		return $tax;
+		return $tax->round()->sub($this->getBasketDiscount());
 	}
 
 	/**
@@ -172,5 +177,18 @@ class Basket {
 			$currentRow = $this->rows[$itemIdentifier];
 			$this->rows[$itemIdentifier] = new Row($currentRow->getItem(), $quantity);
 		}
+	}
+
+	/**
+	 * @return null|Money
+	 */
+	private function getBasketDiscount()
+	{
+		if (is_null($this->coupon))
+		{
+			return null;
+		}
+
+		return $this->coupon->getDiscount($this->getGross(false));
 	}
 }

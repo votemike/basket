@@ -1,5 +1,6 @@
 <?php namespace Votemike\Basket;
 
+use DomainException;
 use Votemike\Money\Money;
 
 class FixedCoupon implements Coupon {
@@ -17,15 +18,18 @@ class FixedCoupon implements Coupon {
 	/**
 	 * @inheritdoc
 	 */
-	public function applyTo(Money $gross)
+	public function getDiscount(Money $gross)
 	{
-		$newGross = $gross->sub($this->discount);
-
-		if($newGross->getAmount() < 0)
+		if ($this->discount->getCurrency() !== $gross->getCurrency())
 		{
-			return new Money(0, $gross->getCurrency());
+			throw new DomainException('Currencies must match');
 		}
 
-		return $newGross;
+		if ($gross->getAmount() < $this->discount->getAmount())
+		{
+			return $gross->round();
+		}
+
+		return $this->discount->round();
 	}
 }

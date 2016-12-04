@@ -8,10 +8,10 @@ use Votemike\Money\Money;
 class PercentageCouponTest extends PHPUnit_Framework_TestCase{
 	public function testPercentageAmountIsDiscounted()
 	{
-		$gross = new Money(10.00, 'USD');
+		$gross = new Money(10.024, 'USD');
 		$coupon = new PercentageCoupon(20);
 
-		$this->assertEquals(8.00, $coupon->applyTo($gross)->getAmount());
+		$this->assertEquals(2.00, $coupon->getDiscount($gross)->getAmount());
 	}
 
 
