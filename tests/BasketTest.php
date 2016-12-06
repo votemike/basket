@@ -115,11 +115,100 @@ class BasketTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals(28.00, $basket->getGross()->getAmount());
 	}
 
-	//getGrossIfItemsSumToZeroAndThereIsACoupon
-	//getGrossIsRoundedProperly
-	//getGrossIsRoundedProperlyWithWholeCheckoutCoupon
-	//getNet
-	//getTax
+	public function testGetNet()
+	{
+		$itemA = Mockery::mock(Item::class);
+		$itemA->shouldReceive('getGross')->with('USD')->once()->andReturn(new Money(10, 'USD'));
+		$itemA->shouldReceive('getUniqueIdentifier')->once()->andReturn(uniqid());
+		$itemA->shouldReceive('getVatRate')->once()->andReturn(20);
+
+		$itemB = Mockery::mock(Item::class);
+		$itemB->shouldReceive('getGross')->with('USD')->once()->andReturn(new Money(10, 'USD'));
+		$itemB->shouldReceive('getUniqueIdentifier')->once()->andReturn(uniqid());
+		$itemB->shouldReceive('getVatRate')->once()->andReturn(5);
+
+		$basket = new Basket('USD');
+		$basket->addItem($itemA);
+		$this->assertEquals(8.33, $basket->getNet()->getAmount());
+
+		$basket = new Basket('USD');
+		$basket->addItem($itemB);
+		$this->assertEquals(9.52, $basket->getNet()->getAmount());
+
+		$basket = new Basket('USD');
+		$basket->addItem($itemA, 2);
+		//Because it's rounded after it has been multiplied by the quantity
+		$this->assertEquals(16.67, $basket->getNet()->getAmount());
+
+		$basket = new Basket('USD');
+		$basket->addItem($itemA);
+		$basket->addItem($itemB);
+		$this->assertEquals(17.85, $basket->getNet()->getAmount());
+	}
+
+	public function testGetTax()
+	{
+		$itemA = Mockery::mock(Item::class);
+		$itemA->shouldReceive('getGross')->with('USD')->once()->andReturn(new Money(10, 'USD'));
+		$itemA->shouldReceive('getUniqueIdentifier')->once()->andReturn(uniqid());
+		$itemA->shouldReceive('getVatRate')->once()->andReturn(20);
+
+		$itemB = Mockery::mock(Item::class);
+		$itemB->shouldReceive('getGross')->with('USD')->once()->andReturn(new Money(10, 'USD'));
+		$itemB->shouldReceive('getUniqueIdentifier')->once()->andReturn(uniqid());
+		$itemB->shouldReceive('getVatRate')->once()->andReturn(5);
+
+		$basket = new Basket('USD');
+		$basket->addItem($itemA);
+		$this->assertEquals(1.67, $basket->getTax()->getAmount());
+
+		$basket = new Basket('USD');
+		$basket->addItem($itemB);
+		$this->assertEquals(0.48, $basket->getTax()->getAmount());
+
+		$basket = new Basket('USD');
+		$basket->addItem($itemA, 2);
+		//Because it's rounded after it has been multiplied by the quantity
+		$this->assertEquals(3.33, $basket->getTax()->getAmount());
+
+		$basket = new Basket('USD');
+		$basket->addItem($itemA);
+		$basket->addItem($itemB);
+		$this->assertEquals(2.15, $basket->getTax()->getAmount());
+	}
+
+	public function testTaxPlusNetAddsBackUpToGross()
+	{
+		$itemA = Mockery::mock(Item::class);
+		$itemA->shouldReceive('getGross')->with('USD')->once()->andReturn(new Money(10, 'USD'));
+		$itemA->shouldReceive('getUniqueIdentifier')->once()->andReturn(uniqid());
+		$itemA->shouldReceive('getVatRate')->once()->andReturn(20);
+
+		$itemB = Mockery::mock(Item::class);
+		$itemB->shouldReceive('getGross')->with('USD')->once()->andReturn(new Money(10, 'USD'));
+		$itemB->shouldReceive('getUniqueIdentifier')->once()->andReturn(uniqid());
+		$itemB->shouldReceive('getVatRate')->once()->andReturn(5);
+
+		$basket = new Basket('USD');
+		$basket->addItem($itemA);
+		$this->assertEquals($basket->getGross(), $basket->getTax()->add($basket->getNet()));
+
+		$basket = new Basket('USD');
+		$basket->addItem($itemB);
+		$this->assertEquals($basket->getGross(), $basket->getTax()->add($basket->getNet()));
+
+		$basket = new Basket('USD');
+		$basket->addItem($itemA, 2);
+		$this->assertEquals($basket->getGross(), $basket->getTax()->add($basket->getNet()));
+
+		$basket = new Basket('USD');
+		$basket->addItem($itemA);
+		$basket->addItem($itemB);
+		$this->assertEquals($basket->getGross(), $basket->getTax()->add($basket->getNet()));
+	}
+
 	//update Item
 	//update Quantity
+	//getGrossIfItemsSumToZeroAndThereIsACoupon
+	//getGrossIsRoundedProperlyWithWholeCheckoutCoupon
 }

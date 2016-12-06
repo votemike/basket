@@ -5,7 +5,6 @@ use Votemike\Money\Money;
 /**
  * @TODO coupons per item
  * @TODO recurring prices
- * @TODO prices in multiple currencies?
  *
  * DB id?
  * Allow setting net instead of gross?

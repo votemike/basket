@@ -8,21 +8,14 @@ use Votemike\Money\Money;
  * Gross is found for all products/coupons.
  * Tax is then calculated
  * Net is Gross minus Tax
- * Only one overall coupon for a basket
  *
  * @TODO Recurring items
  * @TODO basket wide coupons
  * @TODO how do we add item/row specific coupons?
- * @TODO At which point do we round? Maybe at the Row level?
  * @TODO Number of unique items, total items
- * @TODO getItems, getRows
+ * @TODO getItems
  */
 class Basket {
-
-	/**
-	 * @var Coupon
-	 */
-	private $coupon;
 
 	/**
 	 * @var string
@@ -40,11 +33,6 @@ class Basket {
 	public function __construct($currencyCode)
 	{
 		$this->currencyCode = $currencyCode;
-	}
-
-	public function addCoupon(Coupon $coupon)
-	{
-		$this->coupon = $coupon;
 	}
 
 	/**
@@ -73,33 +61,30 @@ class Basket {
 	}
 
 	/**
-	 * @param bool $withDiscounts
+	 * Returns a rounded Money object
+	 *
 	 * @return Money
 	 */
-	public function getGross($withDiscounts = true)
+	public function getGross()
 	{
 		$gross = new Money(0, $this->currencyCode);
 
 		foreach ($this->rows as $row)
 		{
-			$gross = $gross->add($row->getItem()->getGross($this->currencyCode)->multiply($row->getQuantity()));
+			$gross = $gross->add($row->getGross($this->currencyCode));
 		}
 
-		if (false == $withDiscounts || is_null($this->coupon))
-		{
-			return $gross->round();
-		}
-
-		return $gross->round()->sub($this->getBasketDiscount());
+		return $gross;
 	}
 
 	/**
-	 * @param bool $withDiscounts
+	 * Returns a rounded Money object
+	 *
 	 * @return Money
 	 */
-	public function getNet($withDiscounts = true)
+	public function getNet()
 	{
-		return $this->getGross($withDiscounts)->sub($this->getTax($withDiscounts));
+		return $this->getGross()->sub($this->getTax());
 	}
 
 	public function getRows()
@@ -108,26 +93,20 @@ class Basket {
 	}
 
 	/**
-	 * @param bool $withDiscounts
+	 * Returns a rounded Money object
+	 *
 	 * @return Money
 	 */
-	public function getTax($withDiscounts = true)
+	public function getTax()
 	{
 		$tax = new Money(0, $this->currencyCode);
 
 		foreach ($this->rows as $row)
 		{
-			$item = $row->getItem();
-			$rowGross = $item->getGross($this->currencyCode)->multiply($row->getQuantity());
-			$tax = $tax->add($rowGross->percentage($item->getVatRate()));
+			$tax = $tax->add($row->getTax($this->currencyCode));
 		}
 
-		if (false == $withDiscounts || is_null($this->coupon))
-		{
-			return $tax->round();
-		}
-
-		return $tax->round()->sub($this->getBasketDiscount());
+		return $tax;
 	}
 
 	/**
@@ -177,18 +156,5 @@ class Basket {
 			$currentRow = $this->rows[$itemIdentifier];
 			$this->rows[$itemIdentifier] = new Row($currentRow->getItem(), $quantity);
 		}
-	}
-
-	/**
-	 * @return null|Money
-	 */
-	private function getBasketDiscount()
-	{
-		if (is_null($this->coupon))
-		{
-			return null;
-		}
-
-		return $this->coupon->getDiscount($this->getGross(false));
 	}
 }

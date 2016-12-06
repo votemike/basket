@@ -14,6 +14,7 @@ class FixedCouponTest extends PHPUnit_Framework_TestCase {
 
 		$this->assertEquals(2.00, $coupon->getDiscount($gross)->getAmount());
 	}
+
 	public function testFixedDiscountDoesntGoBelowZero()
 	{
 		$gross = new Money(10.002, 'GBP');

@@ -1,6 +1,7 @@
 <?php namespace Votemike\Basket;
 
 use Exception;
+use InvalidArgumentException;
 use Votemike\Money\Money;
 
 class PercentageCoupon implements Coupon {
@@ -20,7 +21,7 @@ class PercentageCoupon implements Coupon {
 	{
 		if ($percentage <= 0 || $percentage > 100)
 		{
-			throw new Exception('@TODO');//@TODO
+			throw new InvalidArgumentException('Percentage must be a value between 0 and 100');
 		}
 		$this->percentage = $percentage;
 	}

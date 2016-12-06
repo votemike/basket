@@ -1,5 +1,7 @@
 <?php namespace Votemike\Basket;
 
+use Votemike\Money\Money;
+
 /**
  * @TODO Should rows have grosses, nets and taxes?
  */
@@ -22,6 +24,18 @@ class Row {
 	}
 
 	/**
+	 * Returns a rounded Money object
+	 *
+	 * @param $currencyCode
+	 * @return Money
+	 */
+	public function getGross($currencyCode)
+	{
+		$itemGross = $this->getItem()->getGross($currencyCode);
+		return $itemGross->multiply($this->getQuantity())->round();
+	}
+
+	/**
 	 * @return Item
 	 */
 	public function getItem()
@@ -35,5 +49,17 @@ class Row {
 	public function getQuantity()
 	{
 		return $this->quantity;
+	}
+
+	/**
+	 * Returns a rounded Money object
+	 *
+	 * @param $currencyCode
+	 * @return Money mixed
+	 */
+	public function getTax($currencyCode)
+	{
+		$rowGross = $this->getGross($currencyCode);
+		return $rowGross->divide(1 + ($this->item->getVatRate() / 100))->sub($rowGross)->multiply(-1)->round();
 	}
 }
