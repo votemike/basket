@@ -2,9 +2,6 @@
 
 use Votemike\Money\Money;
 
-/**
- * @TODO Should rows have grosses, nets and taxes?
- */
 class Row {
 
 	/**
