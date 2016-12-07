@@ -6,7 +6,6 @@ Rounding is done at the Row level
 http://money.stackexchange.com/questions/73310/tax-for-basket-with-coupon-containing-two-different-vat-rates
 
 ##TODO
-Finish BasketTest tests  
 Write some RowTests  
 Decide how coupons should be applied. To Items? To Rows? To a Basket? And what is the API to add a coupon? Via the basket?  
 Think about recurring prices  

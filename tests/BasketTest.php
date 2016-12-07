@@ -207,8 +207,83 @@ class BasketTest extends PHPUnit_Framework_TestCase {
 		$this->assertEquals($basket->getGross(), $basket->getTax()->add($basket->getNet()));
 	}
 
-	//update Item
-	//update Quantity
+	public function testUpdatingAnItem()
+	{
+		$item = Mockery::mock(Item::class);
+		$item->shouldReceive('getGross')->with('USD')->once()->andReturn(new Money(10, 'USD'));
+		$item->shouldReceive('getUniqueIdentifier')->once()->andReturn(uniqid());
+		$item->shouldReceive('getName')->once()->andReturn('New');
+
+		$basket = new Basket('USD');
+		$basket->addItem($item, 2);
+
+		$updatedItem = Mockery::mock(Item::class);
+		$updatedItem->shouldReceive('getUniqueIdentifier')->once()->andReturn($item->getUniqueIdentifier());
+		$updatedItem->shouldReceive('getName')->once()->andReturn('Updated');
+
+		$basket->updateItem($updatedItem);
+	}
+
+	public function testUpdatingAnItemIfItHasNotYetBeenAdded()
+	{
+		$item = Mockery::mock(Item::class);
+		$item->shouldReceive('getUniqueIdentifier')->once()->andReturn(uniqid());
+		$item->shouldReceive('getName')->once()->andReturn('New');
+
+		$basket = new Basket('USD');
+
+		$this->expectException(Exception::class);
+		$this->expectExceptionMessage('Item is not yet in basket. Use addItem() instead.');
+		$basket->updateItem($item);
+	}
+
+	public function testUpdatingQuantity()
+	{
+		$item = Mockery::mock(Item::class);
+		$item->shouldReceive('getUniqueIdentifier')->once()->andReturn(uniqid());
+		$item->shouldReceive('getGross')->with('USD')->once()->andReturn(new Money(10, 'USD'));
+
+		$basket = new Basket('USD');
+		$basket->addItem($item);
+
+		$this->assertEquals(1, array_values($basket->getRows())[0]->getQuantity());
+
+		$basket->updateQuantity($item->getUniqueIdentifier(), 42);
+
+		$this->assertEquals(42, array_values($basket->getRows())[0]->getQuantity());
+	}
+
+	public function testUpdatingQuantityToZeroRemovesItem()
+	{
+		$item = Mockery::mock(Item::class);
+		$item->shouldReceive('getUniqueIdentifier')->once()->andReturn(uniqid());
+		$item->shouldReceive('getGross')->with('USD')->once()->andReturn(new Money(10, 'USD'));
+
+		$basket = new Basket('USD');
+		$basket->addItem($item);
+
+		$this->assertEquals(1, array_values($basket->getRows())[0]->getQuantity());
+
+		$basket->updateQuantity($item->getUniqueIdentifier(), 0);
+
+		$this->assertEmpty($basket->getRows());
+	}
+
+	public function testUpdatingQuantityToLessThanZeroThrowsException()
+	{
+		$item = Mockery::mock(Item::class);
+		$item->shouldReceive('getUniqueIdentifier')->once()->andReturn(uniqid());
+		$item->shouldReceive('getGross')->with('USD')->once()->andReturn(new Money(10, 'USD'));
+
+		$basket = new Basket('USD');
+		$basket->addItem($item);
+
+		$this->assertEquals(1, array_values($basket->getRows())[0]->getQuantity());
+
+		$this->expectException(LogicException::class);
+		$this->expectExceptionMessage('Cannot have a quantity less than 0');
+		$basket->updateQuantity($item->getUniqueIdentifier(), -1);
+	}
 	//getGrossIfItemsSumToZeroAndThereIsACoupon
 	//getGrossIsRoundedProperlyWithWholeCheckoutCoupon
 }

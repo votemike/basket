@@ -133,10 +133,15 @@ class Basket {
 	 * Only really required if prices are set on Item and not retrieved dynamically
 	 *
 	 * @param Item $item
+	 * @throws Exception
 	 */
 	public function updateItem(Item $item)
 	{
 		$uid = $item->getUniqueIdentifier();
+		if (!isset($this->rows[$uid]))
+		{
+			throw new Exception('Item is not yet in basket. Use addItem() instead.');
+		}
 		$currentRow = $this->rows[$uid];
 		$this->rows[$uid] = new Row($item, $currentRow->getQuantity());
 	}
