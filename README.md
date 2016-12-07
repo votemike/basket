@@ -1,5 +1,6 @@
 # basket
 
+[![Build Status](https://travis-ci.org/votemike/basket.svg?branch=master)](https://travis-ci.org/votemike/basket)  
 Not responsible for the correctness of the calculations. Calculations are based in Googling of UK accounting.  
 Rounding is done at the Row level  
 
@@ -9,7 +10,6 @@ http://money.stackexchange.com/questions/73310/tax-for-basket-with-coupon-contai
 Decide how coupons should be applied. To Items? To Rows? To a Basket? And what is the API to add a coupon? Via the basket?  
 Think about recurring prices  
 
-Add travis.yml  
 Figure out lowest PHP version. 7?  
 Figure out lowest version of PHPunit  
 
