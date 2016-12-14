@@ -5,7 +5,7 @@ use LogicException;
 use Votemike\Money\Money;
 
 /**
- * Gross is found for all products/coupons.
+ * Gross is found for all items/coupons.
  * Tax is then calculated
  * Net is Gross minus Tax
  *

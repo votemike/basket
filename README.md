@@ -7,7 +7,8 @@ Rounding is done at the Row level
 http://money.stackexchange.com/questions/73310/tax-for-basket-with-coupon-containing-two-different-vat-rates
 
 ##TODO
-Decide how coupons should be applied. To Items? To Rows? To a Basket? And what is the API to add a coupon? Via the basket?  
+Add way to add Coupons (basket-wide and item specific) to the basket.  
+Add a getDiscount() method to both Row and Basket  
 Think about recurring prices  
 
 Figure out lowest PHP version. 7?  
