@@ -5,13 +5,11 @@ use LogicException;
 use Votemike\Money\Money;
 
 /**
- * Gross is found for all items/coupons.
+ * Gross is found for all items.
  * Tax is then calculated
  * Net is Gross minus Tax
  *
  * @TODO Recurring items
- * @TODO basket wide coupons
- * @TODO how do we add item/row specific coupons?
  * @TODO Number of unique items, total items
  * @TODO getItems
  */

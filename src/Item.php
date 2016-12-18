@@ -3,7 +3,6 @@
 use Votemike\Money\Money;
 
 /**
- * @TODO coupons per item
  * @TODO recurring prices
  *
  * DB id?

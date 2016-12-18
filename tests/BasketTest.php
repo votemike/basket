@@ -284,6 +284,4 @@ class BasketTest extends PHPUnit_Framework_TestCase {
 		$this->expectExceptionMessage('Cannot have a quantity less than 0');
 		$basket->updateQuantity($item->getUniqueIdentifier(), -1);
 	}
-	//getGrossIfItemsSumToZeroAndThereIsACoupon
-	//getGrossIsRoundedProperlyWithWholeCheckoutCoupon
 }
